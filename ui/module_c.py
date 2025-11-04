@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from src.finance_engine import bond_present_value
-from src.utils import validate_inputs
+from src.utils import validate_module_c
 
 def render_module_c(help_texts):
     st.header("Módulo C — Valoración de bonos")
@@ -36,10 +36,11 @@ def render_module_c(help_texts):
         )
     
     if st.button("Calcular valor del bono"):
-        errors = validate_inputs(
+        errors = validate_module_c(
             face_value=face_value,
             coupon_rate=coupon_rate,
-            required_yield=required_yield
+            required_yield=required_yield,
+            years_to_maturity=years_to_maturity
         )
         if errors:
             for e in errors:

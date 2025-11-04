@@ -1,7 +1,7 @@
 import streamlit as st
 from src.finance_engine import calculate_monthly_pension
 from src.tax_engine import apply_tax
-from src.utils import validate_inputs
+from src.utils import validate_module_b
 
 def render_module_b(help_texts):
     st.header("Módulo B — Proyección de retiro o pensión mensual")
@@ -52,8 +52,9 @@ def render_module_b(help_texts):
                 min_value=0.0, max_value=20.0, value=3.0, step=0.1
             )
         
-        errors = validate_inputs(
-            tea=tea_retirement
+        errors = validate_module_b(
+            tea_retirement=tea_retirement,
+            retirement_years=life_expectancy
         )
         if errors:
             for e in errors:

@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from src.finance_engine import calculate_portfolio_growth
-from src.utils import validate_inputs
+from src.utils import validate_module_a
 import json
 
 def render_module_a(help_texts):
@@ -38,12 +38,12 @@ def render_module_a(help_texts):
         )
     
     if st.button("Calcular crecimiento"):
-        errors = validate_inputs(
+        errors = validate_module_a(
             initial_amount=initial_amount,
             periodic_contribution=periodic_contribution,
             tea=tea,
             years=years
-        )
+)
         if errors:
             for e in errors:
                 st.error(e)
