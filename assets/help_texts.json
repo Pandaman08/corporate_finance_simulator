@@ -1,0 +1,14 @@
+{
+  "edad_actual": "Edad actual del usuario en años.",
+  "monto_inicial": "Depósito inicial en dólares (USD).",
+  "aporte_periodico": "Monto que se agrega periódicamente a la inversión (USD).",
+  "frecuencia_aportes": "Frecuencia con la que se realizan los aportes.",
+  "plazo_anios": "Número de años hasta la jubilación.",
+  "tea": "Tasa Efectiva Anual (%), entre 0% y 50%.",
+  "tipo_impuesto": "Tipo de impuesto aplicable a las ganancias.",
+  "valor_nominal": "Valor nominal del bono en USD.",
+  "tasa_coupon": "Tasa cupón anual (% TEA).",
+  "frecuencia_pago_bono": "Frecuencia de los pagos de cupón.",
+  "plazo_bono": "Años hasta el vencimiento del bono.",
+  "tasa_retorno_bono": "Tasa de retorno esperada (% TEA) para descontar flujos."
+}
