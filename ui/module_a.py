@@ -149,7 +149,7 @@ def render_module_a(help_texts):
                         y=df_r['Aporte'].cumsum() + initial_amount,
                         mode='lines',
                         name='Aportes acumulados',
-                        line=dict(color='#444444', width=2, dash='dash')
+                        line=dict(color="#E9C914", width=2, dash='dash')
                     ))
 
             fig.update_layout(
