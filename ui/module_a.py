@@ -55,7 +55,7 @@ def render_module_a(help_texts):
             st.metric("Capital acumulado (USD)", f"${final_balance:,.2f}")
             
             st.subheader("Evolución del fondo")
-            fig, ax = plt.subplots()
+            fig, ax = plt.subplots(figsize=(10, 4))
             ax.plot(df['Periodo'], df['Saldo_Final'], label='Saldo Total')
             ax.plot(df['Periodo'], df['Saldo_Inicial'] + df['Aporte'].cumsum(), label='Aportes Acumulados')
             ax.set_xlabel('Periodo')

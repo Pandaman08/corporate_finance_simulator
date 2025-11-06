@@ -129,7 +129,17 @@ def export_to_pdf(results, filename):
     elements.append(Paragraph("Simulador de Finanzas Corporativas", heading_style))
     elements.append(Spacer(1, 0.5*inch))
     
-    fecha = datetime.now().strftime("%d de %B de %Y")
+    meses_es = {
+        'January': 'Enero', 'February': 'Febrero', 'March': 'Marzo',
+        'April': 'Abril', 'May': 'Mayo', 'June': 'Junio',
+        'July': 'Julio', 'August': 'Agosto', 'September': 'Septiembre',
+        'October': 'Octubre', 'November': 'Noviembre', 'December': 'Diciembre'
+    }
+    fecha_ingles = datetime.now().strftime("%d de %B de %Y")
+    for eng, esp in meses_es.items():
+        fecha_ingles = fecha_ingles.replace(eng, esp)
+    fecha = fecha_ingles
+
     elements.append(Paragraph(f"<para alignment='center'>{fecha}</para>", normal_style))
     elements.append(Spacer(1, 0.3*inch))
     
@@ -215,14 +225,26 @@ def export_to_pdf(results, filename):
             
             try:
                 import pandas as pd
-                chart_data = pd.Series(df['Saldo_Final'].values, index=df['Periodo'])
-                img_buffer = create_matplotlib_chart(
-                    chart_data,
-                    chart_type='line',
-                    title='Crecimiento del Capital en el Tiempo',
-                    xlabel='Periodo',
-                    ylabel='Saldo (USD)'
-                )
+                # Crear gráfico con ambas series
+                fig, ax = plt.subplots(figsize=(8, 4))
+
+                # Solo línea de Saldo Total
+                ax.plot(df['Periodo'], df['Saldo_Final'], color='#1f4788', linewidth=2, marker='o', markersize=3)
+
+                ax.set_title('Evolución del Capital', fontsize=12, fontweight='bold', color='#1f4788')
+                ax.set_xlabel('Periodo')
+                ax.set_ylabel('USD')
+                ax.grid(True, alpha=0.3, linestyle='--')
+                ax.spines['top'].set_visible(False)
+                ax.spines['right'].set_visible(False)
+                
+                plt.tight_layout()
+                
+                img_buffer = io.BytesIO()
+                plt.savefig(img_buffer, format='png', dpi=150, bbox_inches='tight')
+                img_buffer.seek(0)
+                plt.close()
+                
                 img = Image(img_buffer, width=5.5*inch, height=3*inch)
                 elements.append(img)
                 elements.append(Spacer(1, 0.2*inch))
@@ -230,6 +252,8 @@ def export_to_pdf(results, filename):
                 elements.append(Paragraph(f"<para color='red'>Error al generar gráfica: {str(e)}</para>", normal_style))
             
             # Tabla detallada (primeros y últimos 5 periodos)
+            if len(df) > 8:
+                elements.append(PageBreak())
             elements.append(Paragraph("Detalle de Periodos", subheading_style))
             
             if len(df) > 10:
@@ -345,7 +369,6 @@ def export_to_pdf(results, filename):
             ['Tasa Cupón (TEA)', f"{coupon_rate}%"],
             ['Plazo', f"{years} años"],
             ['Tasa de Retorno Esperada', f"{required_yield}%"],
-            ['', ''],
             ['Valor Presente del Bono', format_currency(pv_total)]
         ]
         
@@ -374,14 +397,35 @@ def export_to_pdf(results, filename):
             
             try:
                 import pandas as pd
-                chart_data = pd.Series(df_flows['VP'].values, index=df_flows['Periodo'])
-                img_buffer = create_matplotlib_chart(
-                    chart_data,
-                    chart_type='bar',
-                    title='Valor Presente de Flujos por Periodo',
-                    xlabel='Periodo',
-                    ylabel='Valor Presente (USD)'
-                )
+                # Crear gráfico mejorado
+                fig, ax = plt.subplots(figsize=(8, 4))
+                
+                # Gráfico de barras para valores presentes
+                bars = ax.bar(df_flows['Periodo'], df_flows['VP'], 
+                            color='#4a90e2', alpha=0.8, edgecolor='#1f4788', linewidth=0.5)
+                
+                # Destacar el último periodo (valor nominal + cupón)
+                if len(df_flows) > 0:
+                    bars[-1].set_color('#FF4B4B')  # Última barra en rojo
+                
+                ax.set_title('Valor Presente de Flujos por Periodo', fontsize=12, fontweight='bold', color='#1f4788')
+                ax.set_xlabel('Periodo')
+                ax.set_ylabel('Valor Presente (USD)')
+                ax.grid(True, alpha=0.3, linestyle='--', axis='y')
+                ax.spines['top'].set_visible(False)
+                ax.spines['right'].set_visible(False)
+                
+                # Rotar etiquetas del eje X si hay muchos periodos
+                if len(df_flows) > 12:
+                    plt.xticks(rotation=45)
+                
+                plt.tight_layout()
+                
+                img_buffer = io.BytesIO()
+                plt.savefig(img_buffer, format='png', dpi=150, bbox_inches='tight')
+                img_buffer.seek(0)
+                plt.close()
+                
                 img = Image(img_buffer, width=5.5*inch, height=3*inch)
                 elements.append(img)
                 elements.append(Spacer(1, 0.2*inch))
@@ -389,6 +433,8 @@ def export_to_pdf(results, filename):
                 elements.append(Paragraph(f"<para color='red'>Error al generar gráfica: {str(e)}</para>", normal_style))
             
             # Tabla de flujos detallada
+            if len(df_flows) > 8:
+                elements.append(PageBreak())
             elements.append(Paragraph("Flujos de Caja Descontados", subheading_style))
             
             if len(df_flows) > 10:
