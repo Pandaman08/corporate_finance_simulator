@@ -130,26 +130,32 @@ def render_module_a(help_texts):
 
             # --- GRÁFICO INTERACTIVO ---
             st.subheader("📈 Evolución del fondo (interactivo)")
+
+            # ✅ Lista de colores (corregida)
+            colors = ["#0074C2", '#FFB703', "#0B7F72", "#740B0B", "#3A008B", "#D63F80", '#06D6A0', '#118AB2']
+
             fig = go.Figure()
-            colors = ['#007ACC', '#FFB703', '#FB8500', '#2a9d8f', '#8338ec', '#ff006e']
 
             for i, r in enumerate(sorted(series_results.keys())):
                 df_r, final_r = series_results[r]
+                color = colors[i % len(colors)]
                 fig.add_trace(go.Scatter(
                     x=df_r['Periodo'],
                     y=df_r['Saldo_Final'],
                     mode='lines+markers',
                     name=f"Saldo Total ({r:.1f}%)",
-                    line=dict(color=colors[i % len(colors)], width=3),
+                    line=dict(color=color, width=3),
                     marker=dict(size=4)
                 ))
+
+                # Línea de aportes acumulados solo para la TEA principal
                 if r == tea:
                     fig.add_trace(go.Scatter(
                         x=df_r['Periodo'],
                         y=df_r['Aporte'].cumsum() + initial_amount,
                         mode='lines',
                         name='Aportes acumulados',
-                        line=dict(color="#E9C914", width=2, dash='dash')
+                        line=dict(color="#29E914", width=2, dash='dash')
                     ))
 
             fig.update_layout(
@@ -161,7 +167,9 @@ def render_module_a(help_texts):
                 legend=dict(orientation='h', yanchor='bottom', y=-0.3, xanchor='center', x=0.5),
                 margin=dict(t=60, b=60, l=60, r=40)
             )
+
             st.plotly_chart(fig, use_container_width=True, key=f"chart_{round(tea,1)}")
+
 
             # --- INTERPRETACIÓN ---
             st.subheader("💬 Interpretación rápida")
