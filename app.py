@@ -18,111 +18,34 @@ st.set_page_config(
 )
 
 st.markdown("""
-    <style>
-        /* Configuración base que funciona en ambos temas */
-        .main {
-            color: inherit;
-        }
-        
-        /* Sidebar - forzar tema oscuro */
-        [data-testid="stSidebar"] {
-            background: linear-gradient(180deg, #262730 0%, #1a1a23 100%) !important;
-        }
-        
-        [data-testid="stSidebar"] * {
-            color: #FAFAFA !important;
-        }
-        
-        /* Botones principales */
-        .stButton>button {
-            background-color: #FF4B4B !important;
-            color: white !important;
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
-            font-weight: bold;
-            border: none;
-            transition: all 0.3s ease;
-        }
-        .stButton>button:hover {
-            background-color: #FF6B6B !important;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 75, 75, 0.3);
-        }
-        
-        /* Métricas */
-        div[data-testid="metric-container"] {
-            background-color: #1E1E1E !important;
-            border: 1px solid #333 !important;
-            padding: 1.5rem !important;
-            border-radius: 10px !important;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
-        }
-        
-        [data-testid="stMetricValue"] {
-            color: #FFFFFF !important;
-        }
-        
-        [data-testid="stMetricLabel"] {
-            color: #CCCCCC !important;
-        }
-        
-        /* Expanders */
-        .streamlit-expanderHeader {
-            background-color: #1E1E1E !important;
-            color: #FAFAFA !important;
-            border: 1px solid #333 !important;
-            border-radius: 5px !important;
-        }
-        
-        /* Inputs */
-        .stTextInput>div>div>input, 
-        .stNumberInput>div>div>input,
-        .stSelectbox>div>div>select {
-            background-color: #1E1E1E !important;
-            color: #FAFAFA !important;
-            border: 1px solid #444 !important;
-        }
-        
-        /* Sliders */
-        .stSlider>div>div>div {
-            background-color: #FF4B4B !important;
-        }
-        
-        /* Títulos */
-        h1, h2, h3, h4, h5, h6 {
-            color: #FFFFFF !important;
-        }
-        
-        /* Texto general */
-        p, span, div:not([class*="st"]) {
-            color: #E0E0E0 !important;
-        }
-        
-        /* Botones de descarga */
-        .stDownloadButton>button {
-            background-color: #00D4AA !important;
-            color: #000000 !important;
-            font-weight: bold;
-        }
-        
-        /* Ocultar elementos no deseados */
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        .stDeployButton {display:none;}
-        
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1E1E1E;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #FF4B4B;
-            border-radius: 4px;
-        }
-    </style>
+<style>
+/* ==== Corrección de color de texto para ambos temas ==== */
+
+/* Estilo base del texto dentro de contenedores de módulos */
+div[data-testid="stHorizontalBlock"] div {
+    color: inherit !important;
+}
+
+/* Forzar texto claro u oscuro según el tema */
+html[data-theme="light"], [data-theme="light"] div[data-testid="stHorizontalBlock"] div {
+    color: #222222 !important;  /* Texto oscuro en tema claro */
+}
+
+html[data-theme="dark"], [data-theme="dark"] div[data-testid="stHorizontalBlock"] div {
+    color: #f2f2f2 !important;  /* Texto claro en tema oscuro */
+}
+
+/* Asegurar que los encabezados también cambien */
+[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, [data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] p {
+    color: #f2f2f2 !important;
+}
+[data-theme="light"] h1, [data-theme="light"] h2, [data-theme="light"] h3, [data-theme="light"] h4, [data-theme="light"] h5, [data-theme="light"] p {
+    color: #222222 !important;
+}
+</style>
 """, unsafe_allow_html=True)
+
+
 
 # Cargar textos de ayuda
 try:
