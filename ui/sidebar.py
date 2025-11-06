@@ -3,11 +3,11 @@ import streamlit as st
 def render_sidebar():
     """Renderiza la barra lateral con navegación y opciones"""
     
-    # Logo/Título de la aplicación
+    # Logo/Título de la aplicación - actualizado para tema oscuro
     st.sidebar.markdown("""
-        <div style='text-align: center; padding: 1rem 0; background-color: #1f4788; border-radius: 10px; margin-bottom: 1.5rem;'>
-            <h2 style='color: white; margin: 0; font-size: 1.3rem;'>🪙 Finanzas</h2>
-            <p style='color: #e8f0fe; margin: 0; font-size: 0.8rem;'>Simulador Corporativo</p>
+        <div style='text-align: center; padding: 1rem 0; background-color: #262730; border-radius: 10px; margin-bottom: 1.5rem; border: 1px solid #333;'>
+            <h2 style='color: #FF4B4B; margin: 0; font-size: 1.3rem;'>🪙 Finanzas</h2>
+            <p style='color: #CCCCCC; margin: 0; font-size: 0.8rem;'>Simulador Corporativo</p>
         </div>
     """, unsafe_allow_html=True)
     

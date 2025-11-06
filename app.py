@@ -9,6 +9,31 @@ import os
 from src.exporters import export_to_pdf
 from datetime import datetime
 
+
+
+
+
+import sys # Temporal
+# DEBUG: Mostrar información del entorno
+st.sidebar.markdown("### 🐛 Debug Info")
+st.sidebar.write("Directorio actual:", os.getcwd())
+st.sidebar.write("Python path:", sys.path)
+st.sidebar.write("Archivos en raíz:", [f for f in os.listdir('.') if not f.startswith('.')])
+
+if os.path.exists('src'):
+    st.sidebar.write("📁 Archivos en src:", os.listdir('src'))
+else:
+    st.sidebar.error("❌ No existe carpeta 'src'")
+
+if os.path.exists('ui'):
+    st.sidebar.write("📁 Archivos en ui:", os.listdir('ui'))
+else:
+    st.sidebar.error("❌ No existe carpeta 'ui'")
+
+
+
+
+
 # Configuración inicial de la página
 st.set_page_config(
     page_title="Simulador Finanzas Corporativas",
@@ -17,24 +42,26 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# CSS personalizado para fondo oscuro
 st.markdown("""
     <style>
-        /* Configuración general para tema oscuro */
+        /* Configuración base que funciona en ambos temas */
         .main {
-            background-color: #0E1117;
-            color: #FAFAFA;
+            color: inherit;
         }
         
-        /* Sidebar styling para tema oscuro */
-        .css-1d391kg, .css-1lcbmhc {
-            background-color: #262730;
+        /* Sidebar - forzar tema oscuro */
+        [data-testid="stSidebar"] {
+            background: linear-gradient(180deg, #262730 0%, #1a1a23 100%) !important;
         }
         
-        /* Botones con colores que contrasten en fondo oscuro */
+        [data-testid="stSidebar"] * {
+            color: #FAFAFA !important;
+        }
+        
+        /* Botones principales */
         .stButton>button {
-            background-color: #FF4B4B;
-            color: white;
+            background-color: #FF4B4B !important;
+            color: white !important;
             border-radius: 8px;
             padding: 0.5rem 1rem;
             font-weight: bold;
@@ -42,21 +69,20 @@ st.markdown("""
             transition: all 0.3s ease;
         }
         .stButton>button:hover {
-            background-color: #FF6B6B;
+            background-color: #FF6B6B !important;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(255, 75, 75, 0.3);
         }
         
-        /* Métricas optimizadas para fondo oscuro */
+        /* Métricas */
         div[data-testid="metric-container"] {
-            background-color: #1E1E1E;
-            border: 1px solid #333;
-            padding: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #1E1E1E !important;
+            border: 1px solid #333 !important;
+            padding: 1.5rem !important;
+            border-radius: 10px !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
         }
         
-        /* Texto de las métricas en blanco */
         [data-testid="stMetricValue"] {
             color: #FFFFFF !important;
         }
@@ -65,92 +91,60 @@ st.markdown("""
             color: #CCCCCC !important;
         }
         
-        /* Expanders para tema oscuro */
+        /* Expanders */
         .streamlit-expanderHeader {
-            background-color: #1E1E1E;
-            color: #FAFAFA;
-            border: 1px solid #333;
-            border-radius: 5px;
-        }
-        
-        div[data-testid="stExpander"] div[role="button"] p {
+            background-color: #1E1E1E !important;
             color: #FAFAFA !important;
-            font-weight: 600;
+            border: 1px solid #333 !important;
+            border-radius: 5px !important;
         }
         
-        /* Inputs y selects para tema oscuro */
+        /* Inputs */
         .stTextInput>div>div>input, 
         .stNumberInput>div>div>input,
         .stSelectbox>div>div>select {
-            background-color: #1E1E1E;
-            color: #FAFAFA;
-            border: 1px solid #444;
+            background-color: #1E1E1E !important;
+            color: #FAFAFA !important;
+            border: 1px solid #444 !important;
         }
         
-        /* Sliders para tema oscuro */
+        /* Sliders */
         .stSlider>div>div>div {
-            background-color: #FF4B4B;
+            background-color: #FF4B4B !important;
         }
         
-        /* Títulos y texto general */
+        /* Títulos */
         h1, h2, h3, h4, h5, h6 {
             color: #FFFFFF !important;
         }
         
-        p, span, div {
+        /* Texto general */
+        p, span, div:not([class*="st"]) {
             color: #E0E0E0 !important;
         }
         
-        /* Cards y contenedores */
-        .css-1r6slb0 {
-            background-color: #1E1E1E;
-            border: 1px solid #333;
-            border-radius: 10px;
-            padding: 1rem;
-        }
-        
-        /* Mejora de la sidebar */
-        .css-1d391kg {
-            background: linear-gradient(180deg, #262730 0%, #1a1a23 100%);
-        }
-        
-        /* Efectos hover en la sidebar */
-        .css-1d391kg .css-1lcbmhc .css-1aumguu:hover {
-            background-color: #333842 !important;
-        }
-        
-        /* Botones de descarga con mejor contraste */
+        /* Botones de descarga */
         .stDownloadButton>button {
             background-color: #00D4AA !important;
             color: #000000 !important;
             font-weight: bold;
         }
         
-        .stDownloadButton>button:hover {
-            background-color: #00F5C0 !important;
-        }
-        
-        /* Ocultar el menú de hamburguesa y el footer de Streamlit */
+        /* Ocultar elementos no deseados */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         .stDeployButton {display:none;}
         
-        /* Scrollbar personalizada */
+        /* Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
-        
         ::-webkit-scrollbar-track {
             background: #1E1E1E;
         }
-        
         ::-webkit-scrollbar-thumb {
             background: #FF4B4B;
             border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #FF6B6B;
         }
     </style>
 """, unsafe_allow_html=True)
