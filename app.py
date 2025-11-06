@@ -1,64 +1,244 @@
 import streamlit as st
 from ui.sidebar import render_sidebar
+from ui.home import render_home
 from ui.module_a import render_module_a
 from ui.module_b import render_module_b
 from ui.module_c import render_module_c
 import json
 import os
 from src.exporters import export_to_pdf
+from datetime import datetime
 
-# Configuración inicial
-st.set_page_config(page_title="Simulador Finanzas Corporativas", layout="wide")
+# Configuración inicial de la página
+st.set_page_config(
+    page_title="Simulador Finanzas Corporativas",
+    page_icon="🪙",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# CSS personalizado para fondo oscuro
+st.markdown("""
+    <style>
+        /* Configuración general para tema oscuro */
+        .main {
+            background-color: #0E1117;
+            color: #FAFAFA;
+        }
+        
+        /* Sidebar styling para tema oscuro */
+        .css-1d391kg, .css-1lcbmhc {
+            background-color: #262730;
+        }
+        
+        /* Botones con colores que contrasten en fondo oscuro */
+        .stButton>button {
+            background-color: #FF4B4B;
+            color: white;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: bold;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .stButton>button:hover {
+            background-color: #FF6B6B;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 75, 75, 0.3);
+        }
+        
+        /* Métricas optimizadas para fondo oscuro */
+        div[data-testid="metric-container"] {
+            background-color: #1E1E1E;
+            border: 1px solid #333;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Texto de las métricas en blanco */
+        [data-testid="stMetricValue"] {
+            color: #FFFFFF !important;
+        }
+        
+        [data-testid="stMetricLabel"] {
+            color: #CCCCCC !important;
+        }
+        
+        /* Expanders para tema oscuro */
+        .streamlit-expanderHeader {
+            background-color: #1E1E1E;
+            color: #FAFAFA;
+            border: 1px solid #333;
+            border-radius: 5px;
+        }
+        
+        div[data-testid="stExpander"] div[role="button"] p {
+            color: #FAFAFA !important;
+            font-weight: 600;
+        }
+        
+        /* Inputs y selects para tema oscuro */
+        .stTextInput>div>div>input, 
+        .stNumberInput>div>div>input,
+        .stSelectbox>div>div>select {
+            background-color: #1E1E1E;
+            color: #FAFAFA;
+            border: 1px solid #444;
+        }
+        
+        /* Sliders para tema oscuro */
+        .stSlider>div>div>div {
+            background-color: #FF4B4B;
+        }
+        
+        /* Títulos y texto general */
+        h1, h2, h3, h4, h5, h6 {
+            color: #FFFFFF !important;
+        }
+        
+        p, span, div {
+            color: #E0E0E0 !important;
+        }
+        
+        /* Cards y contenedores */
+        .css-1r6slb0 {
+            background-color: #1E1E1E;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+        
+        /* Mejora de la sidebar */
+        .css-1d391kg {
+            background: linear-gradient(180deg, #262730 0%, #1a1a23 100%);
+        }
+        
+        /* Efectos hover en la sidebar */
+        .css-1d391kg .css-1lcbmhc .css-1aumguu:hover {
+            background-color: #333842 !important;
+        }
+        
+        /* Botones de descarga con mejor contraste */
+        .stDownloadButton>button {
+            background-color: #00D4AA !important;
+            color: #000000 !important;
+            font-weight: bold;
+        }
+        
+        .stDownloadButton>button:hover {
+            background-color: #00F5C0 !important;
+        }
+        
+        /* Ocultar el menú de hamburguesa y el footer de Streamlit */
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        .stDeployButton {display:none;}
+        
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1E1E1E;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #FF4B4B;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FF6B6B;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
 # Cargar textos de ayuda
-with open("assets/help_texts.json", encoding="utf-8") as f:
-    help_texts = json.load(f)
+try:
+    with open("assets/help_texts.json", encoding="utf-8") as f:
+        help_texts = json.load(f)
+except FileNotFoundError:
+    help_texts = {}
+    st.warning("No se encontró el archivo de textos de ayuda")
 
 # Renderizar barra lateral
 selected_module = render_sidebar()
 
 # Renderizar módulo seleccionado
-if selected_module.startswith("Módulo A"):
+if selected_module.startswith("🏠"):
+    render_home()
+elif selected_module.startswith("📈"):
     render_module_a(help_texts)
-elif selected_module.startswith("Módulo B"):
+elif selected_module.startswith("💰"):
     render_module_b(help_texts)
-elif selected_module.startswith("Módulo C"):
+elif selected_module.startswith("📊"):
     render_module_c(help_texts)
 
-# Exportación a PDF (disponible si hay resultados)
-if st.sidebar.button("Exportar resultados a PDF"):
-    results = {}
-    if 'module_a_result' in st.session_state:
-        results["Módulo A - Crecimiento"] = {
-            'Capital final': st.session_state['module_a_result']['final_balance']
-        }
-    if 'module_b_result' in st.session_state:
-        res = st.session_state['module_b_result']
-        if res['tipo'] == 'cobro_total':
-            results["Módulo B - Retiro"] = {
-                'Tipo': 'Cobro total',
-                'Bruto': res['bruto'],
-                'Neto': res['neto']
-            }
-        else:
-            results["Módulo B - Retiro"] = {
-                'Tipo': 'Pensión mensual',
-                'Bruto mensual': res['bruto_mensual'],
-                'Neto mensual': res['neto_mensual']
-            }
-    if 'module_c_result' in st.session_state:
-        results["Módulo C - Bono"] = {
-            'Valor Presente': st.session_state['module_c_result']['pv_total']
-        }
-    
-    if results:
-        export_to_pdf(results, "resultados_finanzas.pdf")
-        with open("resultados_finanzas.pdf", "rb") as f:
-            st.sidebar.download_button(
-                label="Descargar PDF",
-                data=f,
-                file_name="resultados_finanzas.pdf",
-                mime="application/pdf"
-            )
-    else:
-        st.sidebar.warning("No hay resultados para exportar.")
+# Sección de exportación a PDF en el sidebar
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 📄 Exportar Resultados")
+
+# Verificar si hay resultados para exportar
+has_results = any([
+    'module_a_result' in st.session_state,
+    'module_b_result' in st.session_state,
+    'module_c_result' in st.session_state
+])
+
+if has_results:
+    if st.sidebar.button("📥 Generar PDF", key="export_pdf_button"):
+        try:
+            # Preparar los resultados para exportar
+            results = {}
+            
+            if 'module_a_result' in st.session_state:
+                results['module_a_result'] = st.session_state['module_a_result']
+            
+            if 'module_b_result' in st.session_state:
+                results['module_b_result'] = st.session_state['module_b_result']
+            
+            if 'module_c_result' in st.session_state:
+                results['module_c_result'] = st.session_state['module_c_result']
+            
+            # Generar nombre de archivo con timestamp
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"reporte_finanzas_{timestamp}.pdf"
+            
+            # Crear el PDF
+            with st.spinner("Generando PDF profesional..."):
+                export_to_pdf(results, filename)
+            
+            # Ofrecer descarga
+            with open(filename, "rb") as f:
+                pdf_data = f.read()
+                st.sidebar.download_button(
+                    label="⬇️ Descargar PDF",
+                    data=pdf_data,
+                    file_name=filename,
+                    mime="application/pdf",
+                    key="download_pdf_button"
+                )
+            
+            st.sidebar.success("✅ PDF generado exitosamente")
+            
+            # Limpiar archivo temporal después de un tiempo
+            try:
+                os.remove(filename)
+            except:
+                pass
+                
+        except Exception as e:
+            st.sidebar.error(f"❌ Error al generar PDF: {str(e)}")
+else:
+    st.sidebar.info("💡 Completa al menos un módulo para exportar resultados")
+
+# Footer informativo
+st.sidebar.markdown("---")
+st.sidebar.markdown("""
+    <div style='text-align: center; font-size: 0.7rem; color: #888;'>
+        <p>Simulador v1.0</p>
+        <p>© 2025 Proyecto Académico</p>
+    </div>
+""", unsafe_allow_html=True)
