@@ -9,31 +9,6 @@ import os
 from src.exporters import export_to_pdf
 from datetime import datetime
 
-
-
-
-
-import sys # Temporal
-# DEBUG: Mostrar información del entorno
-st.sidebar.markdown("### 🐛 Debug Info")
-st.sidebar.write("Directorio actual:", os.getcwd())
-st.sidebar.write("Python path:", sys.path)
-st.sidebar.write("Archivos en raíz:", [f for f in os.listdir('.') if not f.startswith('.')])
-
-if os.path.exists('src'):
-    st.sidebar.write("📁 Archivos en src:", os.listdir('src'))
-else:
-    st.sidebar.error("❌ No existe carpeta 'src'")
-
-if os.path.exists('ui'):
-    st.sidebar.write("📁 Archivos en ui:", os.listdir('ui'))
-else:
-    st.sidebar.error("❌ No existe carpeta 'ui'")
-
-
-
-
-
 # Configuración inicial de la página
 st.set_page_config(
     page_title="Simulador Finanzas Corporativas",
