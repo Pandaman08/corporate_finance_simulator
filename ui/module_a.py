@@ -223,7 +223,7 @@ def render_module_a(help_texts):
                 'roi_percent': roi_percent,
                 'cagr': cagr
             }
-
+            st.success("✅ Resultados del Módulo A guardados correctamente para el chatbot.")
     else:
         with results_container:
             st.info("Ajusta los parámetros y haz clic en **Calcular** para ver los resultados.")

@@ -36,8 +36,10 @@ def render_module_b(help_texts):
             'tipo': 'cobro_total',
             'bruto': capital,
             'impuesto': tax,
-            'neto': net_amount
+            'neto': net_amount 
         }
+        st.success("✅ Resultados del Módulo B (Cobro total) guardados correctamente para el chatbot.")
+
     
     else:
         col1, col2 = st.columns(2)
@@ -78,3 +80,4 @@ def render_module_b(help_texts):
                 'capital_bruto': capital,
                 'capital_neto': net_capital
             }
+            st.success("✅ Resultados del Módulo B (Pensión mensual) guardados correctamente para el chatbot.")

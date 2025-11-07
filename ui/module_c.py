@@ -62,3 +62,4 @@ def render_module_c(help_texts):
                 'years': years_to_maturity,
                 'yield': required_yield
             }
+            st.success("✅ Resultados del Módulo C guardados correctamente para el chatbot.")
