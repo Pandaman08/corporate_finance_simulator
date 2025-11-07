@@ -6,11 +6,13 @@ Versión profesional — modo absoluto, estructural, analítico y contextual.
 import streamlit as st
 from groq import Groq
 from datetime import datetime
+from gtts import gTTS
+import base64
+import tempfile
+import os
 
-
-# ------------------------------------------------------
 # 🔹 Inicialización y gestión del estado del chat
-# ------------------------------------------------------
+
 def init_chat_session():
     """Inicializa la sesión del chatbot con mensaje base."""
     if "chat_history" not in st.session_state:
@@ -37,9 +39,8 @@ def add_message(role, content):
     })
 
 
-# ------------------------------------------------------
 # 🔹 Generador del contexto financiero (si hay simulaciones)
-# ------------------------------------------------------
+
 def build_context_summary():
     """Construye un resumen contextual de los cálculos financieros previos."""
     lines = []
@@ -88,9 +89,9 @@ def build_context_summary():
 
     return "\n".join(lines) if lines else "Sin simulaciones activas."
 
-# ------------------------------------------------------
+
 # 🔹 Render principal del módulo del chatbot
-# ------------------------------------------------------
+
 def render_module_chat():
     """Renderiza la interfaz principal del chatbot financiero."""
     st.title("💼 Chatbot Financiero IA — Llama 3.1 (Groq)")
@@ -103,6 +104,9 @@ def render_module_chat():
 
     init_chat_session()
     client = Groq(api_key=api_key)
+
+    # 🔊 Opción para activar voz
+    use_voice = st.toggle("🔊 Activar voz del asistente", value=True)
 
     # Mostrar contexto actual si existe
     with st.expander("📊 Contexto financiero activo", expanded=False):
@@ -155,14 +159,29 @@ Formato:
                     st.markdown(reply)
                     add_message("assistant", reply)
 
+                    # === 🗣️ Conversión a voz (si está activado) ===
+                    if use_voice and reply:
+                        try:
+                            tts = gTTS(reply, lang="es")
+                            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp:
+                                tts.save(tmp.name)
+                                tmp_path = tmp.name
+
+                            # Reproducir el audio directamente
+                            with open(tmp_path, "rb") as audio_file:
+                                audio_bytes = audio_file.read()
+                                st.audio(audio_bytes, format="audio/mp3")
+
+                            os.remove(tmp_path)
+                        except Exception as e:
+                            st.warning(f"⚠️ Error al generar voz: {str(e)}")
+
                 except Exception as e:
                     error_text = f"❌ Error al conectar con Groq: {str(e)}"
                     st.error(error_text)
                     add_message("assistant", error_text)
 
-    # ------------------------------------------------------
-    # Opciones de control
-    # ------------------------------------------------------
+    # Opciones de control-
     st.markdown("---")
     col1, col2 = st.columns([1, 1])
 
