@@ -7,3 +7,4 @@ reportlab
 fpdf
 openai>=1.0.0
 groq
+datetime

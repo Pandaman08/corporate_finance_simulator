@@ -42,30 +42,51 @@ def add_message(role, content):
 # ------------------------------------------------------
 def build_context_summary():
     """Construye un resumen contextual de los cálculos financieros previos."""
-    ctx = st.session_state.chat_context
     lines = []
 
-    # Ejemplo: información de simulaciones previas
-    if "fv_total" in st.session_state:
+    # --- MÓDULO A: Inversión inicial ---
+    if "module_a_result" in st.session_state:
+        a = st.session_state["module_a_result"]
         lines.append(f"""
-Simulación activa — Inversión en acciones:
-• Inversión inicial: ${st.session_state.get('initial', 0):,.2f}
-• TEA: {st.session_state.get('tea_pct', 0)}%
-• Plazo: {st.session_state.get('years', 0)} años
-• Valor futuro: ${st.session_state.get('fv_total', 0):,.2f}
+**Simulación — Inversión inicial (Módulo A):**
+• Monto inicial: ${a.get('initial_amount', 0):,.2f}
+• TEA: {a.get('tea_pct', 0)}%
+• Plazo: {a.get('years', 0)} años
+• Valor futuro: ${a.get('final_balance', 0):,.2f}
 """)
 
-    if "bond_pv" in st.session_state:
+    # --- MÓDULO B: Retiro o pensión ---
+    if "module_b_result" in st.session_state:
+        b = st.session_state["module_b_result"]
+        if b.get('tipo') == 'cobro_total':
+            lines.append(f"""
+**Simulación — Retiro total (Módulo B):**
+• Capital bruto: ${b.get('bruto', 0):,.2f}
+• Impuesto: ${b.get('impuesto', 0):,.2f}
+• Capital neto: ${b.get('neto', 0):,.2f}
+""")
+        else:
+            lines.append(f"""
+**Simulación — Pensión mensual (Módulo B):**
+• Capital neto: ${b.get('capital_neto', 0):,.2f}
+• Pensión mensual (bruta): ${b.get('bruto_mensual', 0):,.2f}
+• Pensión mensual (neta): ${b.get('neto_mensual', 0):,.2f}
+• Impuesto aplicado: ${b.get('impuesto', 0):,.2f}
+""")
+
+    # --- MÓDULO C: Bono ---
+    if "module_c_result" in st.session_state:
+        c = st.session_state["module_c_result"]
         lines.append(f"""
-Simulación activa — Bono:
-• Valor nominal: ${st.session_state.get('bond_face_value', 0):,.2f}
-• Tasa cupón: {st.session_state.get('bond_coupon_rate', 0)}%
-• TEA: {st.session_state.get('bond_tea_yield', 0)}%
-• Precio justo: ${st.session_state.get('bond_pv', 0):,.2f}
+**Simulación — Valoración de bono (Módulo C):**
+• Valor nominal: ${c.get('face_value', 0):,.2f}
+• Tasa cupón: {c.get('coupon_rate', 0)}%
+• TEA esperada: {c.get('yield', 0)}%
+• Plazo: {c.get('years', 0)} años
+• Valor presente: ${c.get('pv_total', 0):,.2f}
 """)
 
     return "\n".join(lines) if lines else "Sin simulaciones activas."
-
 
 # ------------------------------------------------------
 # 🔹 Render principal del módulo del chatbot
