@@ -401,7 +401,7 @@ def export_to_pdf(results, filename):
                 fig, ax = plt.subplots(figsize=(8, 4))
                 
                 # Gráfico de barras para valores presentes
-                bars = ax.bar(df_flows['Periodo'], df_flows['VP'], 
+                bars = ax.bar(df_flows['Periodo'], df_flows['Valor Presente'], 
                             color='#4a90e2', alpha=0.8, edgecolor='#1f4788', linewidth=0.5)
                 
                 # Destacar el último periodo (valor nominal + cupón)
@@ -443,16 +443,18 @@ def export_to_pdf(results, filename):
             else:
                 df_display = df_flows
             
-            table_data = [['Periodo', 'Flujo', 'Valor Presente']]
-            
+            table_data = [['Periodo', 'Cupón', 'Principal', 'Flujo Total', 'Valor Presente']]
+
             for _, row in df_display.iterrows():
                 table_data.append([
                     str(int(row['Periodo'])),
-                    format_currency(row['Flujo']),
-                    format_currency(row['VP'])
+                    format_currency(row['Cupón']),
+                    format_currency(row['Principal']),
+                    format_currency(row['Flujo Total']),
+                    format_currency(row['Valor Presente'])
                 ])
             
-            flows_table = Table(table_data, colWidths=[2*inch, 2*inch, 2*inch])
+            flows_table = Table(table_data, colWidths=[0.8*inch, 1.2*inch, 1.2*inch, 1.2*inch, 1.2*inch])
             flows_table.setStyle(TableStyle([
                 ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1f4788')),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),

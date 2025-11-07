@@ -61,8 +61,29 @@ def bond_present_value(
     coupon_rate,
     payment_freq,
     years_to_maturity,
-    required_yield
+    required_yield,
+    use_tea=True
 ):
+    """
+    Calcula el valor presente de un bono con detalle completo por periodo.
+    
+    Args:
+        face_value: Valor nominal del bono
+        coupon_rate: Tasa del cupón (% anual)
+        payment_freq: Frecuencia de pago ('Mensual', 'Bimestral', etc.)
+        years_to_maturity: Años hasta el vencimiento
+        required_yield: Tasa de retorno requerida (% anual)
+        use_tea: Si True, usa TEA; si False, usa tasa nominal
+    
+    Returns:
+        df: DataFrame con detalle de flujos por periodo
+        pv_total: Valor presente total del bono
+        summary: Diccionario con información resumen
+    """
+    # Validaciones de entrada
+    if coupon_rate < 0 or coupon_rate > 100:
+        raise ValueError("La tasa cupón debe estar entre 0 y 100%")
+    
     freq_map = {
         'Mensual': 12,
         'Bimestral': 6,
@@ -71,25 +92,81 @@ def bond_present_value(
         'Semestral': 2,
         'Anual': 1
     }
+    
+    if payment_freq not in freq_map:
+        raise ValueError(f"Frecuencia no válida. Opciones: {list(freq_map.keys())}")
+    
     periods_per_year = freq_map[payment_freq]
-    coupon_payment = (coupon_rate / 100) * face_value / periods_per_year
     total_periods = int(years_to_maturity * periods_per_year)
-    r = convert_tea_to_periodic(required_yield / 100, periods_per_year)
     
-    cash_flows = []
-    pv_flows = []
+    if total_periods == 0:
+        raise ValueError("El plazo debe generar al menos un periodo de pago")
+    
+    # Cálculo de la tasa periódica y cupón
+    if use_tea:
+        # Para el cupón: usar tasa nominal simple (estándar en bonos)
+        coupon_periodic_rate = (coupon_rate / 100) / periods_per_year
+        # Para descuento: convertir TEA a tasa periódica efectiva
+        discount_rate = convert_tea_to_periodic(required_yield / 100, periods_per_year)
+    else:
+        # Tasa nominal simple para ambos
+        coupon_periodic_rate = (coupon_rate / 100) / periods_per_year
+        discount_rate = (required_yield / 100) / periods_per_year
+    
+    coupon_payment = face_value * coupon_periodic_rate
+    
+    # Construcción de tabla de flujos con detalle completo
+    periodos = []
+    flujos_cupon = []
+    flujos_principal = []
+    flujos_totales = []
+    factores_descuento = []
+    valores_presentes = []
+    
     for t in range(1, total_periods + 1):
-        cf = coupon_payment
-        if t == total_periods:
-            cf += face_value
-        pv = cf / ((1 + r) ** t)
-        cash_flows.append(cf)
-        pv_flows.append(pv)
-    
-    pv_total = sum(pv_flows)
+        # Flujos
+        cupon = coupon_payment
+        principal = face_value if t == total_periods else 0.0
+        flujo_total = cupon + principal
+        
+        # Factor de descuento
+        factor = 1 / ((1 + discount_rate) ** t)
+        
+        # Valor presente
+        vp = flujo_total * factor
+        
+        periodos.append(t)
+        flujos_cupon.append(round(cupon, 2))
+        flujos_principal.append(round(principal, 2))
+        flujos_totales.append(round(flujo_total, 2))
+        factores_descuento.append(round(factor, 6))
+        valores_presentes.append(round(vp, 2))
+
     df = pd.DataFrame({
-        'Periodo': range(1, total_periods + 1),
-        'Flujo': cash_flows,
-        'VP': pv_flows
+        'Periodo': periodos,
+        'Cupón': flujos_cupon,
+        'Principal': flujos_principal,
+        'Flujo Total': flujos_totales,
+        'Factor Descuento': factores_descuento,
+        'Valor Presente': valores_presentes
     })
-    return df, pv_total
+    
+    # Valor presente total (redondeado)
+    pv_total = round(sum(valores_presentes), 2)
+    
+    total_cupones = round(sum(flujos_cupon), 2)
+    vp_cupones = round(df['Valor Presente'].iloc[:-1].sum(), 2) if total_periods > 1 else 0
+    vp_principal = round(df['Valor Presente'].iloc[-1], 2)
+    
+    summary = {
+        'total_periods': total_periods,
+        'coupon_payment': round(coupon_payment, 2),
+        'total_coupons': total_cupones,
+        'vp_coupons': vp_cupones,
+        'vp_principal': vp_principal,
+        'discount_rate_periodic': round(discount_rate * 100, 4),
+        'premium_discount': round(pv_total - face_value, 2),
+        'premium_discount_pct': round(((pv_total / face_value) - 1) * 100, 2)
+    }
+    
+    return df, pv_total, summary
